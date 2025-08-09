@@ -8,9 +8,9 @@ from dotenv import load_dotenv
 load_dotenv()
 from data_processing.kpi import resumen_anual_yoy, rentabilidad_por_servicio, heatmap_por_dia_hora
 
-
-
-
+# ─────────────── AUTH POR VARIABLES DE ENTORNO ─────────────── #
+APP_USER = os.getenv("APP_USER", "admin")
+APP_PASSWORD = os.getenv("APP_PASSWORD", "1234")
 
 # ─────────────── LOGIN ─────────────── #
 def login_requerido(f):
@@ -26,8 +26,15 @@ UPLOAD_FOLDER = 'uploads'
 ALLOWED_EXTENSIONS = {'csv', 'xlsx'}
 
 app = Flask(__name__)
+# Clave de sesión desde variable de entorno (con fallback para local)
 app.secret_key = os.environ.get('SECRET_KEY', 'supersecreto')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+# Opcionales de seguridad (bien para producción)
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+# Si usas HTTPS en producción, activa la siguiente línea:
+# app.config['SESSION_COOKIE_SECURE'] = True
 
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
@@ -35,26 +42,27 @@ if not os.path.exists(UPLOAD_FOLDER):
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-# ─────────────── RUTA DE LOGIN ─────────────── #
+# ─────────────── RUTA DE LOGIN (ajustada a env vars) ─────────────── #
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        usuario = request.form.get('usuario')
-        clave = request.form.get('clave')
+        usuario = request.form.get('usuario', '').strip()
+        clave = request.form.get('clave', '')
 
-        if usuario == 'admin' and clave == '1234':
+        if usuario == APP_USER and clave == APP_PASSWORD:
             session['usuario'] = usuario
+            flash('✅ Login correcto', 'success')
             return redirect(url_for('index'))
         else:
-            flash('Credenciales incorrectas.')
+            flash('❌ Credenciales incorrectas.', 'danger')
 
     return render_template('login.html')
 
-# ─────────────── RUTA DE LOGOUT (opcional) ─────────────── #
+# ─────────────── RUTA DE LOGOUT ─────────────── #
 @app.route('/logout')
 def logout():
     session.pop('usuario', None)
-    flash("Sesión cerrada.")
+    flash("🔒 Sesión cerrada.", "info")
     return redirect(url_for('login'))
 
 # ─────────────── INICIO ─────────────── #
@@ -68,12 +76,12 @@ def index():
 @login_requerido
 def upload_file():
     if 'file' not in request.files:
-        flash('No se seleccionó ningún archivo.')
+        flash('No se seleccionó ningún archivo.', 'warning')
         return redirect(request.url)
 
     file = request.files['file']
     if file.filename == '':
-        flash('Nombre de archivo vacío.')
+        flash('Nombre de archivo vacío.', 'warning')
         return redirect(url_for('index'))
 
     if file and allowed_file(file.filename):
@@ -81,19 +89,21 @@ def upload_file():
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(filepath)
 
-        # Leer el archivo
-        if filename.endswith('.csv'):
-            df = pd.read_csv(filepath)
-        elif filename.endswith('.xlsx'):
-            df = pd.read_excel(filepath)
-        else:
-            flash("Formato de archivo no compatible.")
+        # Comprobación básica de lectura (opcional, para feedback inmediato)
+        try:
+            if filename.lower().endswith('.csv'):
+                _ = pd.read_csv(filepath)
+            elif filename.lower().endswith('.xlsx'):
+                _ = pd.read_excel(filepath)
+        except Exception as e:
+            flash(f"Error leyendo el archivo: {e}", "danger")
             return redirect(url_for('index'))
 
         return redirect(url_for('dashboard', filename=filename))
 
-    flash('Archivo no permitido.')
+    flash('Archivo no permitido.', 'warning')
     return redirect(url_for('index'))
+
 
 # ─────────────── DASHBOARD PRINCIPAL ─────────────── #
 @app.route('/dashboard')

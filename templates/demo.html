@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block title %}Vista Demo{% endblock %}
+
+{% block content %}
+<h2 class="mb-4 text-center">📊 KPI Manager Gastro Pro – Demo</h2>
+<p class="text-center text-muted">Vista previa del dashboard interactivo sin necesidad de subir archivos.</p>
+
+<!-- 🌟 Características destacadas -->
+<div class="row text-center mb-5">
+    <div class="col-md-4 mb-4">
+        <div class="card p-3 shadow-sm h-100">
+            <div class="fs-2">📈</div>
+            <h5 class="mt-2">KPIs clave</h5>
+            <p class="text-muted">Visualiza ventas, ticket medio, comensales y más.</p>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card p-3 shadow-sm h-100">
+            <div class="fs-2">📊</div>
+            <h5 class="mt-2">Análisis interactivo</h5>
+            <p class="text-muted">Explora tendencias y comparativas dinámicas.</p>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card p-3 shadow-sm h-100">
+            <div class="fs-2">🚨</div>
+            <h5 class="mt-2">Alertas inteligentes</h5>
+            <p class="text-muted">Detecta caídas de ventas y objetivos no cumplidos.</p>
+        </div>
+    </div>
+</div>
+
+<!-- 🖼️ Vista previa de imágenes demo -->
+<div class="row justify-content-center mb-4">
+    <div class="col-md-6 mb-4">
+        <img src="{{ url_for('static', filename='img/demo1.png') }}" class="img-fluid rounded shadow" alt="Demo 1">
+    </div>
+    <div class="col-md-6 mb-4">
+        <img src="{{ url_for('static', filename='img/demo2.png') }}" class="img-fluid rounded shadow" alt="Demo 2">
+    </div>
+    <div class="col-md-6 mb-4">
+        <img src="{{ url_for('static', filename='img/demo3.png') }}" class="img-fluid rounded shadow" alt="Demo 3">
+    </div>
+</div>
+
+<!-- 🔐 Botón de acceso -->
+<div class="text-center mt-4">
+    <a href="{{ url_for('login') }}" class="btn btn-primary">Iniciar sesión</a>
+</div>
+{% endblock %}

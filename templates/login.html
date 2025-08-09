@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<div class="container mt-5" style="max-width: 400px;">
+    <h3 class="mb-4 text-center">🔐 Acceso a KPI Manager Gastro Pro</h3>
+
+    <form method="POST">
+        <div class="mb-3">
+            <label for="usuario" class="form-label">Usuario</label>
+            <input type="text" class="form-control" name="usuario" required>
+        </div>
+        <div class="mb-3">
+            <label for="clave" class="form-label">Contraseña</label>
+            <input type="password" class="form-control" name="clave" required>
+        </div>
+        <button type="submit" class="btn btn-primary w-100">Ingresar</button>
+    </form>
+
+    <!-- 🔍 Botón demo accesible sin login -->
+    <div class="text-center mt-4">
+        <p class="text-muted">¿Solo quieres ver una demo?</p>
+        <a href="{{ url_for('demo') }}" class="btn btn-outline-secondary">
+            📊 Ver demo sin iniciar sesión
+            <span class="badge bg-warning text-dark ms-2">Vista previa</span>
+        </a>
+
+    </div>
+    {% endblock %}
